@@ -1,0 +1,163 @@
+{
+	"info": {
+		"_postman_id": "8d3ea5f6-2cd3-4927-a128-bb4ea2ef69e1",
+		"name": "GitProfile Analyzer API",
+		"description": "Postman Collection for the GitProfile Analyzer API. Facilitates profile analysis, deep insights generation, retrieving stored profiles, and comparing developer metrics.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Analyze & Store Profile",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/api/profiles/:username",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"profiles",
+						":username"
+					],
+					"query": [
+						{
+							"key": "force",
+							"value": "true",
+							"description": "Force refresh GitHub data even if cached",
+							"disabled": true
+						}
+					],
+					"variable": [
+						{
+							"key": "username",
+							"value": "torvalds",
+							"description": "GitHub username to analyze"
+						}
+					]
+				},
+				"description": "Fetches a user's GitHub profile details and repositories, calculates total stars/forks/open issues, generates a language percentage breakdown, lists their top 5 repositories, and stores the analytics record in the database."
+			},
+			"response": []
+		},
+		{
+			"name": "Get Stored Profile List",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/api/profiles",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"profiles"
+					]
+				},
+				"description": "Retrieves the list of all analyzed profiles stored in the database, ordered by the last analyzed timestamp."
+			},
+			"response": []
+		},
+		{
+			"name": "Get Single Profile Insights",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/api/profiles/:username",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"profiles",
+						":username"
+					],
+					"variable": [
+						{
+							"key": "username",
+							"value": "torvalds",
+							"description": "The stored GitHub username"
+						}
+					]
+				},
+				"description": "Returns the complete data and computed insights for a single profile from the database."
+			},
+			"response": []
+		},
+		{
+			"name": "Delete Stored Profile",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/api/profiles/:username",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"profiles",
+						":username"
+					],
+					"variable": [
+						{
+							"key": "username",
+							"value": "torvalds",
+							"description": "The GitHub username to delete"
+						}
+					]
+				},
+				"description": "Deletes the stored profile and computed insights for a developer from the database."
+			},
+			"response": []
+		},
+		{
+			"name": "Server Health Check",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/health",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"health"
+					]
+				},
+				"description": "Checks the system status, uptime, database type, and database connection status."
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:3000",
+			"type": "string"
+		}
+	]
+}

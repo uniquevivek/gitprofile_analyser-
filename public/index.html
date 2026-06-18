@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GitProfile Analyzer - Deep Developer Insights</title>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <!-- FontAwesome for Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Chart.js for beautiful charts -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Background Elements -->
+  <div class="bg-glow bg-glow-1"></div>
+  <div class="bg-glow bg-glow-2"></div>
+
+  <div class="app-container">
+    <!-- Header -->
+    <header class="app-header">
+      <div class="logo">
+        <i class="fa-brands fa-github logo-icon"></i>
+        <h1>GitProfile <span>Analyzer</span></h1>
+      </div>
+      <p class="subtitle">Extract, analyze, and compare rich developer insights from GitHub profiles</p>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+      <!-- Search & Control Panel -->
+      <section class="control-panel card">
+        <form id="search-form" class="search-form">
+          <div class="input-group">
+            <i class="fa-solid fa-magnifying-glass input-icon"></i>
+            <input type="text" id="username-input" placeholder="Enter GitHub username (e.g. torvalds)..." required autocomplete="off">
+          </div>
+          <button type="submit" id="analyze-btn" class="btn btn-primary">
+            <i class="fa-solid fa-chart-line"></i> Analyze Profile
+          </button>
+        </form>
+        <div class="control-actions">
+          <button id="toggle-compare-btn" class="btn btn-secondary">
+            <i class="fa-solid fa-right-left"></i> Compare Mode
+          </button>
+        </div>
+      </section>
+
+      <!-- Compare Section (Toggled) -->
+      <section id="compare-section" class="compare-section card hidden">
+        <div class="section-header">
+          <h2><i class="fa-solid fa-right-left icon-blue"></i> Side-by-Side Comparison</h2>
+          <button id="close-compare-btn" class="btn-close">&times;</button>
+        </div>
+        
+        <div class="compare-selectors">
+          <div class="selector-group">
+            <label for="compare-user-1">User 1</label>
+            <select id="compare-user-1" class="select-dropdown">
+              <option value="">Select first profile...</option>
+            </select>
+          </div>
+          <span class="vs-badge">VS</span>
+          <div class="selector-group">
+            <label for="compare-user-2">User 2</label>
+            <select id="compare-user-2" class="select-dropdown">
+              <option value="">Select second profile...</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Compare Results Container -->
+        <div id="compare-results" class="compare-results hidden">
+          <div class="compare-grid">
+            <!-- User 1 Card Summary -->
+            <div class="compare-user-card" id="comp-card-1">
+              <img id="comp-avatar-1" src="" alt="Avatar" class="comp-avatar">
+              <h3 id="comp-name-1">Name</h3>
+              <p class="comp-username" id="comp-login-1">@username</p>
+            </div>
+
+            <!-- VS Statistics Panel -->
+            <div class="compare-stats-table">
+              <!-- Repos -->
+              <div class="stat-row">
+                <span class="stat-val val-left" id="comp-repos-1">0</span>
+                <span class="stat-label"><i class="fa-solid fa-book-bookmark"></i> Repositories</span>
+                <span class="stat-val val-right" id="comp-repos-2">0</span>
+              </div>
+              <!-- Stars -->
+              <div class="stat-row">
+                <span class="stat-val val-left" id="comp-stars-1">0</span>
+                <span class="stat-label"><i class="fa-solid fa-star"></i> Total Stars</span>
+                <span class="stat-val val-right" id="comp-stars-2">0</span>
+              </div>
+              <!-- Followers -->
+              <div class="stat-row">
+                <span class="stat-val val-left" id="comp-followers-1">0</span>
+                <span class="stat-label"><i class="fa-solid fa-users"></i> Followers</span>
+                <span class="stat-val val-right" id="comp-followers-2">0</span>
+              </div>
+              <!-- Forks -->
+              <div class="stat-row">
+                <span class="stat-val val-left" id="comp-forks-1">0</span>
+                <span class="stat-label"><i class="fa-solid fa-code-branch"></i> Total Forks</span>
+                <span class="stat-val val-right" id="comp-forks-2">0</span>
+              </div>
+              <!-- Language -->
+              <div class="stat-row">
+                <span class="stat-val val-left lang-tag" id="comp-lang-1">JS</span>
+                <span class="stat-label"><i class="fa-solid fa-code"></i> Main Language</span>
+                <span class="stat-val val-right lang-tag" id="comp-lang-2">Python</span>
+              </div>
+            </div>
+
+            <!-- User 2 Card Summary -->
+            <div class="compare-user-card" id="comp-card-2">
+              <img id="comp-avatar-2" src="" alt="Avatar" class="comp-avatar">
+              <h3 id="comp-name-2">Name</h3>
+              <p class="comp-username" id="comp-login-2">@username</p>
+            </div>
+          </div>
+
+          <!-- Chart comparison -->
+          <div class="compare-chart-container">
+            <canvas id="compareChart"></canvas>
+          </div>
+        </div>
+
+        <div id="compare-placeholder" class="compare-placeholder">
+          <i class="fa-solid fa-people-arrows placeholder-icon"></i>
+          <p>Please select two profiles above to view side-by-side comparison and analytics.</p>
+        </div>
+      </section>
+
+      <!-- Profile Details View (Hidden by default, shown on select) -->
+      <section id="detail-section" class="detail-section card hidden">
+        <div class="section-header">
+          <h2><i class="fa-solid fa-chart-simple icon-purple"></i> Profile Analytics Details</h2>
+          <button id="close-detail-btn" class="btn-close">&times;</button>
+        </div>
+
+        <div class="detail-layout">
+          <!-- Left Column: User details -->
+          <div class="detail-sidebar">
+            <div class="profile-card-header">
+              <img id="detail-avatar" src="" alt="Avatar" class="detail-avatar">
+              <h2 id="detail-name">Developer Name</h2>
+              <p class="detail-username" id="detail-username">@username</p>
+              <p class="detail-bio" id="detail-bio">Bio description goes here</p>
+            </div>
+
+            <div class="detail-metadata">
+              <div class="meta-item" id="detail-location-container">
+                <i class="fa-solid fa-location-dot"></i>
+                <span id="detail-location">Location</span>
+              </div>
+              <div class="meta-item" id="detail-blog-container">
+                <i class="fa-solid fa-link"></i>
+                <a href="#" id="detail-blog" target="_blank">Website</a>
+              </div>
+              <div class="meta-item">
+                <i class="fa-solid fa-calendar-days"></i>
+                <span>Joined GitHub: <strong id="detail-joined">Date</strong></span>
+              </div>
+              <div class="meta-item">
+                <i class="fa-solid fa-clock"></i>
+                <span>Last Analyzed: <strong id="detail-analyzed">Time</strong></span>
+              </div>
+            </div>
+            
+            <button id="detail-force-refresh" class="btn btn-secondary btn-full">
+              <i class="fa-solid fa-arrows-rotate"></i> Force Update Data
+            </button>
+          </div>
+
+          <!-- Right Column: Stats & Repos -->
+          <div class="detail-analytics">
+            <!-- Metrics Grid -->
+            <div class="metrics-grid">
+              <div class="metric-card">
+                <div class="metric-icon star-glow"><i class="fa-solid fa-star"></i></div>
+                <div class="metric-info">
+                  <h4 id="metric-stars">0</h4>
+                  <p>Total Stars Received</p>
+                </div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-icon fork-glow"><i class="fa-solid fa-code-branch"></i></div>
+                <div class="metric-info">
+                  <h4 id="metric-forks">0</h4>
+                  <p>Total Forks Received</p>
+                </div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-icon repo-glow"><i class="fa-solid fa-book-bookmark"></i></div>
+                <div class="metric-info">
+                  <h4 id="metric-repos">0</h4>
+                  <p>Public Repositories</p>
+                </div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-icon follower-glow"><i class="fa-solid fa-users"></i></div>
+                <div class="metric-info">
+                  <h4 id="metric-followers">0</h4>
+                  <p>Followers</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Visualization and Language details -->
+            <div class="analysis-plots">
+              <div class="plot-card">
+                <h3>Language Distribution</h3>
+                <div class="chart-wrapper">
+                  <canvas id="languageChart"></canvas>
+                </div>
+              </div>
+              <div class="plot-card">
+                <h3>Language Breakdown</h3>
+                <div id="language-list" class="language-list">
+                  <!-- Generated programmatically -->
+                </div>
+              </div>
+            </div>
+
+            <!-- Top Repositories -->
+            <div class="top-repos-section">
+              <h3>Top 5 Starred Repositories</h3>
+              <div id="top-repos-list" class="repos-grid">
+                <!-- Generated programmatically -->
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Profiles List Section -->
+      <section class="profiles-list-section">
+        <div class="section-title-bar">
+          <h2><i class="fa-solid fa-users-gear icon-green"></i> Analyzed Profiles</h2>
+          <span id="profiles-count" class="badge">0 stored</span>
+        </div>
+
+        <div id="loading-spinner" class="loading-spinner hidden">
+          <i class="fa-solid fa-circle-notch fa-spin"></i>
+          <p>Analyzing profile & retrieving details...</p>
+        </div>
+
+        <div id="empty-state" class="empty-state">
+          <i class="fa-solid fa-folder-open empty-icon"></i>
+          <h3>No Profiles Analyzed Yet</h3>
+          <p>Enter a GitHub username in the search bar above to fetch insights and populate your database.</p>
+        </div>
+
+        <div id="profiles-grid" class="profiles-grid hidden">
+          <!-- Dynamic Profile Cards -->
+        </div>
+      </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="app-footer">
+      <p>&copy; 2026 GitHub Profile Analyzer API. Built with Node.js, Express.js & SQLite/MySQL.</p>
+    </footer>
+  </div>
+
+  <!-- JS Scripts -->
+  <script src="app.js"></script>
+</body>
+</html>
