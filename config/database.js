@@ -1,5 +1,4 @@
 import mysql from 'mysql2/promise';
-import sqlite3 from 'sqlite3';
 import path from 'path';
 import fs from 'fs';
 import dotenv from 'dotenv';
@@ -40,6 +39,7 @@ if (dbType === 'mysql') {
   console.log('Database configuration: MySQL pool created.');
 } else {
   // sqlite configuration
+  const sqlite3 = (await import('sqlite3')).default;
   const dbFile = process.env.DB_FILE || 'database.sqlite';
   const dbPath = path.resolve(dbFile);
   
