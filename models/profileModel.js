@@ -1,4 +1,22 @@
-import db from '../config/database.js';
+import db, { dbType } from '../config/database.js';
+
+/**
+ * Helper to convert ISO 8601 strings to MySQL-compatible DATETIME format.
+ */
+function toSqlDateTime(dateStr) {
+  if (!dateStr) return null;
+  if (dbType === 'mysql') {
+    try {
+      const date = new Date(dateStr);
+      if (!isNaN(date.getTime())) {
+        return date.toISOString().slice(0, 19).replace('T', ' ');
+      }
+    } catch (e) {
+      // Fallback to original string if error occurs
+    }
+  }
+  return dateStr;
+}
 
 /**
  * Format database row to parse JSON fields safely.
@@ -105,8 +123,8 @@ const ProfileModel = {
         profile.public_gists,
         profile.followers,
         profile.following,
-        profile.github_created_at,
-        profile.github_updated_at,
+        toSqlDateTime(profile.github_created_at),
+        toSqlDateTime(profile.github_updated_at),
         profile.total_stars,
         profile.total_forks,
         profile.total_open_issues,
@@ -141,8 +159,8 @@ const ProfileModel = {
         profile.public_gists,
         profile.followers,
         profile.following,
-        profile.github_created_at,
-        profile.github_updated_at,
+        toSqlDateTime(profile.github_created_at),
+        toSqlDateTime(profile.github_updated_at),
         profile.total_stars,
         profile.total_forks,
         profile.total_open_issues,

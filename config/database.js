@@ -89,9 +89,9 @@ if (dbType === 'mysql') {
   };
 }
 
-// Auto-initialize schema for SQLite
-if (dbType === 'sqlite') {
-  try {
+// Auto-initialize schema
+try {
+  if (dbType === 'sqlite') {
     await dbInstance.query(`
       CREATE TABLE IF NOT EXISTS profiles (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -122,9 +122,36 @@ if (dbType === 'sqlite') {
       CREATE INDEX IF NOT EXISTS idx_username ON profiles (username)
     `);
     console.log('Database configuration: SQLite schema initialized.');
-  } catch (error) {
-    console.error('Failed to initialize SQLite schema:', error);
+  } else if (dbType === 'mysql') {
+    await dbInstance.query(`
+      CREATE TABLE IF NOT EXISTS profiles (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        username VARCHAR(100) NOT NULL UNIQUE,
+        name VARCHAR(255),
+        avatar_url VARCHAR(255),
+        bio TEXT,
+        blog VARCHAR(255),
+        location VARCHAR(255),
+        public_repos INT DEFAULT 0,
+        public_gists INT DEFAULT 0,
+        followers INT DEFAULT 0,
+        following INT DEFAULT 0,
+        github_created_at DATETIME,
+        github_updated_at DATETIME,
+        total_stars INT DEFAULT 0,
+        total_forks INT DEFAULT 0,
+        total_open_issues INT DEFAULT 0,
+        primary_language VARCHAR(100),
+        language_breakdown JSON,
+        top_repositories JSON,
+        analyzed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        INDEX idx_username (username)
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+    `);
+    console.log('Database configuration: MySQL schema initialized.');
   }
+} catch (error) {
+  console.error(`Failed to initialize ${dbType} schema:`, error);
 }
 
 export default dbInstance;
